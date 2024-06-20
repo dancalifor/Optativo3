@@ -36,4 +36,5 @@ public class SucursalRepository
         string query = "UPDATE Sucursal SET Descripcion = @Descripcion, Direccion = @Direccion, Telefono = @Telefono, Whatsapp = @Whatsapp, Mail = @Mail, Estado = @Estado WHERE Id = @Id";
         _connection.Execute(query, sucursal);
     }
+}
 

@@ -1,51 +1,42 @@
 ﻿using Optativo3.Repository.Data.Clientes;
 using Repository.Data.Clientes;
-using System;
 using System.Collections.Generic;
 
 namespace Services.Logica
 {
     public class ClienteService
     {
-        private readonly IClienteRepository clienteRepository;
+        private readonly IClienteRepository _clienteRepository;
 
-        public ClienteService(string connectionString)
+        public ClienteService(IClienteRepository clienteRepository)
         {
-            clienteRepository = new ClienteRepository(connectionString);
+            _clienteRepository = clienteRepository;
         }
 
         public bool Add(ClienteModel cliente)
         {
-            return ValidarDatos(cliente) ? clienteRepository.add(cliente) : throw new Exception("Error en la validación de datos, corroborar");
+            // Aquí podrías agregar validaciones específicas para clientes
+            return _clienteRepository.Add(cliente);
         }
 
-        public IEnumerable<ClienteModel> GetAll()
+        public bool Update(ClienteModel cliente)
         {
-            return clienteRepository.GetAll();
+            return _clienteRepository.Update(cliente);
         }
 
         public bool Delete(int id)
         {
-            return id > 0 ? clienteRepository.delete(id) : false;
+            return _clienteRepository.Delete(id);
         }
 
-        public bool Update(ClienteModel clienteModel)
+        public IEnumerable<ClienteModel> GetAll()
         {
-            return ValidarDatos(clienteModel) ? clienteRepository.update(clienteModel) : throw new Exception("Error en la validación de datos, corroborar");
+            return _clienteRepository.GetAll();
         }
 
-        private bool ValidarDatos(ClienteModel cliente)
+        public ClienteModel GetById(int id)
         {
-            if (cliente == null)
-                return false;
-            if (string.IsNullOrEmpty(cliente.Nombre))
-                return false;
-            if (string.IsNullOrEmpty(cliente.Apellido) && cliente.Nombre.Length < 2)
-                return false;
-            if (string.IsNullOrEmpty(cliente.Documento))
-                return false;
-
-            return true;
+            return _clienteRepository.GetById(id);
         }
     }
 }

@@ -1,87 +1,65 @@
 ﻿using Dapper;
+using Npgsql;
 using Optativo3.Repository.Data.Clientes;
-using Optativo3.Repository.Data.Connection;
-using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository.Data.Clientes
 {
     public class ClienteRepository : IClienteRepository
     {
-        IDbConnection connection;
+        private readonly string _connectionString;
 
         public ClienteRepository(string connectionString)
         {
-            connection = new ConnectionDB(connectionString).OpenConnection();
+            _connectionString = connectionString;
         }
 
-        public bool add(ClienteModel clienteModel)
+        public bool Add(ClienteModel cliente)
         {
-            try
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                connection.Execute("INSERT INTO Cliente (Id_banco, Nombre, Apellido, Documento, Direccion, Email, Celular, Estado) " +
-                    "VALUES (@Id_banco, @Nombre, @Apellido, @Documento, @Direccion, @Email, @Celular, @Estado)", clienteModel);
-                return true;
+                var query = "INSERT INTO Clientes (Nombre, Apellido, Documento, Email, Direccion, Celular, Estado) VALUES (@Nombre, @Apellido, @Documento, @Email, @Direccion, @Celular, @Estado)";
+                var result = connection.Execute(query, cliente);
+                return result > 0;
             }
-            catch (Exception ex)
-            {
+        }
 
-                Console.WriteLine($"Error al agregar cliente: {ex.Message}");
-                return false;
+        public bool Update(ClienteModel cliente)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                var query = "UPDATE Clientes SET Nombre = @Nombre, Apellido = @Apellido, Documento = @Documento, Email = @Email, Direccion = @Direccion, Celular = @Celular, Estado = @Estado WHERE Id = @Id";
+                var result = connection.Execute(query, cliente);
+                return result > 0;
+            }
+        }
+
+        public bool Delete(int id)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                var query = "DELETE FROM Clientes WHERE Id = @Id";
+                var result = connection.Execute(query, new { Id = id });
+                return result > 0;
             }
         }
 
         public IEnumerable<ClienteModel> GetAll()
         {
-            try
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                return connection.Query<ClienteModel>("SELECT * FROM Cliente");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al obtener clientes: {ex.Message}");
-                return new List<ClienteModel>();
+                var query = "SELECT * FROM Clientes";
+                return connection.Query<ClienteModel>(query).ToList();
             }
         }
 
-        public bool delete(int id)
+        public ClienteModel GetById(int id)
         {
-            try
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                connection.Execute("DELETE FROM Cliente WHERE Id = @Id", new { Id = id });
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al eliminar cliente: {ex.Message}");
-                return false;
-            }
-        }
-
-        public bool update(ClienteModel clienteModel)
-        {
-            try
-            {
-                connection.Execute("UPDATE Cliente SET " +
-                    "id_banco = @Id_banco, " +
-                    "nombre = @Nombre, " +
-                    "apellido = @Apellido, " +
-                    "documento = @Documento, " +
-                    "direccion = @Direccion, " +
-                    "dmail = @Email, " +
-                    "celular = @Celular, " +
-                    "estado = @Estado " +
-                    "WHERE Id = @Id", clienteModel);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al actualizar cliente: {ex.Message}");
-                return false;
+                var query = "SELECT * FROM Clientes WHERE Id = @Id";
+                return connection.QueryFirstOrDefault<ClienteModel>(query, new { Id = id });
             }
         }
     }
