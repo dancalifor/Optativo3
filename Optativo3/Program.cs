@@ -1,5 +1,8 @@
-﻿using Optativo3.Repository.Data.Clientes;
+﻿using Optativo3.Models;
+using Optativo3.Repository.Data.Clientes;
+using Optativo3.Repository.Data.PedidosCompra;
 using Optativo3.Repository.Data.Productos;
+using Optativo3.Services.Logica;
 using Repository.Data.Clientes;
 using Repository.Data.Facturas;
 using Repository.Data.Productos;
@@ -14,34 +17,45 @@ namespace Optativo3
         static void Main(string[] args)
         {
             string connectionString = "Host=localhost;port=5432;Database=optativo;Username=postgres;Password=0000;";
-            
+
             IClienteRepository clienteRepository = new ClienteRepository(connectionString);
             ClienteService clienteService = new ClienteService(clienteRepository);
-            
+
             IProductoRepository productoRepository = new ProductoRepository(connectionString);
             ProductoService productoService = new ProductoService(productoRepository);
-            
+
             IDetalleFacturaRepository detalleFacturaRepository = new DetalleFacturaRepository(connectionString);
             DetalleFacturaService detalleFacturaService = new DetalleFacturaService(detalleFacturaRepository);
 
-            Console.WriteLine("Seleccione una opción: \n 1 - Clientes \n 2 - Productos \n 3 - Detalles de Factura");
+            IProveedorRepository proveedorRepository = new ProveedorRepository(connectionString);
+            ProveedorService proveedorService = new ProveedorService(proveedorRepository);
+
+            IPedidoCompraRepository pedidoCompraRepository = new PedidoCompraRepository(connectionString);
+            PedidoCompraService pedidoCompraService = new PedidoCompraService(pedidoCompraRepository);
+
+            Console.WriteLine("Seleccione una opción: \n 1 - Clientes \n 2 - Productos \n 3 - Detalles de Factura \n 4 - Proveedores \n 5 - Pedidos de Compra");
             string opcion = Console.ReadLine();
 
-            if (opcion == "1")
+            switch (opcion)
             {
-                ManejarClientes(clienteService);
-            }
-            else if (opcion == "2")
-            {
-                ManejarProductos(productoService);
-            }
-            else if (opcion == "3")
-            {
-                ManejarDetallesFactura(detalleFacturaService);
-            }
-            else
-            {
-                Console.WriteLine("Opción no válida.");
+                case "1":
+                    ManejarClientes(clienteService);
+                    break;
+                case "2":
+                    ManejarProductos(productoService);
+                    break;
+                case "3":
+                    ManejarDetallesFactura(detalleFacturaService);
+                    break;
+                case "4":
+                    ManejarProveedores(proveedorService);
+                    break;
+                case "5":
+                    ManejarPedidosCompra(pedidoCompraService);
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    break;
             }
         }
 
@@ -50,17 +64,17 @@ namespace Optativo3
             Console.WriteLine("Ingrese: \n a - para insertar cliente \n b - para listar clientes");
             string opcion = Console.ReadLine();
 
-            if (opcion == "a")
+            switch (opcion)
             {
-                InsertarCliente(clienteService);
-            }
-            else if (opcion == "b")
-            {
-                ListarClientes(clienteService);
-            }
-            else
-            {
-                Console.WriteLine("Opción no válida.");
+                case "a":
+                    InsertarCliente(clienteService);
+                    break;
+                case "b":
+                    ListarClientes(clienteService);
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    break;
             }
         }
 
@@ -119,17 +133,17 @@ namespace Optativo3
             Console.WriteLine("Ingrese: \n a - para insertar producto \n b - para listar productos");
             string opcion = Console.ReadLine();
 
-            if (opcion == "a")
+            switch (opcion)
             {
-                InsertarProducto(productoService);
-            }
-            else if (opcion == "b")
-            {
-                ListarProductos(productoService);
-            }
-            else
-            {
-                Console.WriteLine("Opción no válida.");
+                case "a":
+                    InsertarProducto(productoService);
+                    break;
+                case "b":
+                    ListarProductos(productoService);
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    break;
             }
         }
 
@@ -190,17 +204,17 @@ namespace Optativo3
             Console.WriteLine("Ingrese: \n a - para insertar detalle de factura \n b - para listar detalles de factura");
             string opcion = Console.ReadLine();
 
-            if (opcion == "a")
+            switch (opcion)
             {
-                InsertarDetalleFactura(detalleFacturaService);
-            }
-            else if (opcion == "b")
-            {
-                ListarDetallesFactura(detalleFacturaService);
-            }
-            else
-            {
-                Console.WriteLine("Opción no válida.");
+                case "a":
+                    InsertarDetalleFactura(detalleFacturaService);
+                    break;
+                case "b":
+                    ListarDetallesFactura(detalleFacturaService);
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    break;
             }
         }
 
@@ -247,6 +261,139 @@ namespace Optativo3
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al obtener detalles de factura: {ex.Message}");
+            }
+        }
+
+        static void ManejarProveedores(ProveedorService proveedorService)
+        {
+            Console.WriteLine("Ingrese: \n a - para insertar proveedor \n b - para listar proveedores");
+            string opcion = Console.ReadLine();
+
+            switch (opcion)
+            {
+                case "a":
+                    InsertarProveedor(proveedorService);
+                    break;
+                case "b":
+                    ListarProveedores(proveedorService);
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    break;
+            }
+        }
+
+        static void InsertarProveedor(ProveedorService proveedorService)
+        {
+            try
+            {
+                proveedorService.Add(new ProveedorModel
+                {
+                    RazonSocial = "Proveedor ABC",
+                    TipoDocumento = "RUC",
+                    NumeroDocumento = "1234567890",
+                    Direccion = "Av. Principal 456",
+                    Mail = "proveedor@proveedor.com",
+                    Celular = "987654321",
+                    Estado = "Activo"
+                });
+                Console.WriteLine("Proveedor insertado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al insertar proveedor: {ex.Message}");
+            }
+        }
+
+        static void ListarProveedores(ProveedorService proveedorService)
+        {
+            try
+            {
+                var proveedores = proveedorService.GetAll().ToList();
+                if (proveedores.Any())
+                {
+                    proveedores.ForEach(proveedor =>
+                    Console.WriteLine(
+                        $"Razón Social: {proveedor.RazonSocial} \n " +
+                        $"Tipo de Documento: {proveedor.TipoDocumento} \n " +
+                        $"Número de Documento: {proveedor.NumeroDocumento} \n " +
+                        $"Dirección: {proveedor.Direccion} \n " +
+                        $"Correo: {proveedor.Mail} \n " +
+                        $"Estado: {proveedor.Estado} \n "
+                        )
+                    );
+                }
+                else
+                {
+                    Console.WriteLine("No hay proveedores registrados.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener proveedores: {ex.Message}");
+            }
+        }
+
+        static void ManejarPedidosCompra(PedidoCompraService pedidoCompraService)
+        {
+            Console.WriteLine("Ingrese: \n a - para insertar pedido de compra \n b - para listar pedidos de compra");
+            string opcion = Console.ReadLine();
+
+            switch (opcion)
+            {
+                case "a":
+                    InsertarPedidoCompra(pedidoCompraService);
+                    break;
+                case "b":
+                    ListarPedidosCompra(pedidoCompraService);
+                    break;
+                default:
+                    Console.WriteLine("Opción no válida.");
+                    break;
+            }
+        }
+
+        static void InsertarPedidoCompra(PedidoCompraService pedidoCompraService)
+        {
+            try
+            {
+                pedidoCompraService.Add(new PedidoCompraModel
+                {
+                    IdProveedor = 1,
+                    FechaHora = DateTime.Now,
+                    Total = 5000
+                });
+                Console.WriteLine("Pedido de compra insertado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al insertar pedido de compra: {ex.Message}");
+            }
+        }
+
+        static void ListarPedidosCompra(PedidoCompraService pedidoCompraService)
+        {
+            try
+            {
+                var pedidosCompra = pedidoCompraService.GetAll().ToList();
+                if (pedidosCompra.Any())
+                {
+                    pedidosCompra.ForEach(pedido =>
+                    Console.WriteLine(
+                        $"ID Proveedor: {pedido.IdProveedor} \n " +
+                        $"Fecha y Hora: {pedido.Fecha_Hora} \n " +
+                        $"Total: {pedido.Total} \n "
+                        )
+                    );
+                }
+                else
+                {
+                    Console.WriteLine("No hay pedidos de compra registrados.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener pedidos de compra: {ex.Message}");
             }
         }
     }
